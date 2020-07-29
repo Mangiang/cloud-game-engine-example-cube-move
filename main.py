@@ -100,12 +100,12 @@ class MyListener(stomp.ConnectionListener):
 
     def on_message(self, headers, body):
         print(f'received a message {body}')
+        json_body = json.loads(body)
         if headers["destination"] == "/queue/connection":
-            if body == "connect":
+            if json_body["type"] == "connection":
                 conn.send(destination='/queue/game_state', body=json.dumps(
-                    {"type": "instantiate", "mesh": "box", "name": "Box", "scale": 4}))
+                    {"type": "instantiate", "mesh": "box", "name": "Box", "scale": 4, "time": json_body["time"]}))
         elif headers["destination"] == "/queue/input":
-            json_body = json.loads(body)
             x = 0
             y = 0
             if "action" in json_body and json_body["action"] == "KEY_DOWN":
@@ -118,7 +118,7 @@ class MyListener(stomp.ConnectionListener):
                 elif json_body["key"] == "ArrowLeft":
                     x = -1
                 conn.send(destination='/queue/game_state', body=json.dumps(
-                    {"type": "translation", "vector": {"x": x, "y": y, "z": 0}, "name": "Box", "distance": 1}))
+                    {"type": "translation", "vector": {"x": x, "y": y, "z": 0}, "name": "Box", "distance": 1, "time": json_body["time"]}))
         print('processed message')
 
     def on_disconnected(self):
