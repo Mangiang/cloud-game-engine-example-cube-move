@@ -1,2 +1,2 @@
-stomp.py
 flask
+kafka-python
